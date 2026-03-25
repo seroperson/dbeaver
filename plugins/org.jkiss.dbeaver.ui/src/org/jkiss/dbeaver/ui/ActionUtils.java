@@ -1,6 +1,6 @@
 /*
  * DBeaver - Universal Database Manager
- * Copyright (C) 2010-2025 DBeaver Corp and others
+ * Copyright (C) 2010-2026 DBeaver Corp and others
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,8 +57,9 @@ import org.jkiss.dbeaver.runtime.DBWorkbench;
 import org.jkiss.utils.ArrayUtils;
 import org.jkiss.utils.CommonUtils;
 
-import java.util.List;
 import java.util.*;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Action utils
@@ -118,6 +119,35 @@ public class ActionUtils {
 
     public static CommandContributionItem makeCommandContribution(IServiceLocator serviceLocator, String commandId, String name, DBPImage image) {
         return makeCommandContribution(serviceLocator, commandId, name, image, null, false);
+    }
+
+    @NotNull
+    public static ActionContributionItem makeContribution(@NotNull String text) {
+        return new ActionContributionItem(new EmptyAction(text));
+    }
+
+    @NotNull
+    public static ActionContributionItem makeContribution(
+        @NotNull String text,
+        @NotNull Consumer<Event> callback
+    ) {
+        return new ActionContributionItem(new Action(text) {
+            @Override
+            public void runWithEvent(@NotNull Event event) {
+                callback.accept(event);
+            }
+        });
+    }
+
+    @NotNull
+    public static ActionContributionItem makeContribution(
+        @NotNull String text,
+        @NotNull DBPImage image,
+        @NotNull Consumer<Event> callback
+    ) {
+        var item = makeContribution(text, callback);
+        item.getAction().setImageDescriptor(DBeaverIcons.getImageDescriptor(image));
+        return item;
     }
 
     public static ContributionItem makeActionContribution(
